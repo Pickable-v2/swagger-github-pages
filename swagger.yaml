@@ -1,88 +1,60 @@
----
 openapi: 3.0.1
 info:
-  title: Picktable
+  title: EatPick API
   description: API 설명
-  version: '2.0'
+  version: '1.0'
 servers:
   - url: http://localhost:8080
     description: Generated server url
 security:
   - jwtAuth: []
 tags:
-  - name: Review
-    description: Review API
-  - name: Receipt
-    description: Receipt API
-  - name: Food
-    description: Food API
-  - name: ChatRoom
-    description: ChatRoom API
   - name: Member
     description: Member API
-  - name: Restaurant
-    description: Restaurant API
-  - name: Rank
-    description: Rank API
-  - name: Notice
-    description: Notice API
-  - name: Vote
-    description: Vote API
-  - name: Bookmark
-    description: Bookmark API
-  - name: Friendship
-    description: Friendship API
-  - name: Meet
-    description: Meet API
-  - name: Likes
-    description: Likes API
 paths:
-  "/vote/end/{roomId}/{voteId}":
-    post:
-      tags:
-        - Vote
-      description: 투표 종료 및 메뉴 저장
-      operationId: endVoteAndSaveMenu
-      parameters:
-        - name: voteId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.meet.domain.dto.MeetResponseDTO"
-  "/sign-up":
+  /mypage/update:
     post:
       tags:
         - Member
-      description: 회원가입
-      operationId: signup
+      description: 회원정보 수정
+      operationId: myPageUpdate
       requestBody:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/com.example.picktable.member.domain.dto.signup.SignupRequestDTO"
+              $ref: >-
+                #/components/schemas/com.example.eatpick.auth.domain.dto.request.MyPageUpdateRequest
         required: true
       responses:
         '200':
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/sign-in":
+                $ref: >-
+                  #/components/schemas/com.example.eatpick.auth.domain.dto.response.MyPageUpdateResponse
+  /member/sign-up:
+    post:
+      tags:
+        - Member
+      description: 회원가입
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: >-
+                #/components/schemas/com.example.eatpick.auth.domain.dto.request.MemberRequest
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: >-
+                  #/components/schemas/com.example.eatpick.auth.domain.dto.response.MemberResponse
+  /member/sign-in:
     post:
       tags:
         - Member
@@ -92,1015 +64,50 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/com.example.picktable.member.domain.dto.login.LoginRequestDTO"
+              $ref: >-
+                #/components/schemas/com.example.eatpick.auth.domain.dto.request.SignInRequest
         required: true
       responses:
         '200':
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
-                "$ref": "#/components/schemas/com.example.picktable.member.domain.dto.JwtTokenDTO"
-  "/room/create":
+                $ref: >-
+                  #/components/schemas/com.example.eatpick.auth.domain.dto.response.SignInResponse
+  /member/check-password:
     post:
       tags:
-        - ChatRoom
-      description: 채팅방 생성 및 친구 초대
-      operationId: createRoomAndInviteFriends
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.chatRoom.domain.dto.RoomAndFriendsRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.chatRoom.domain.entity.ChatRoom"
-  "/review/{reviewId}/likes":
-    post:
-      tags:
-        - Likes
-      description: 리뷰 좋아요 등록
-      operationId: addReviewLikes
+        - Member
+      description: 비밀번호 확인
+      operationId: checkPassword
       parameters:
-        - name: reviewId
-          in: path
+        - name: loginPw
+          in: query
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+        - name: verifiedLoginPw
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: object
-  "/review/{restaurantId}":
+  /member/check-nickname:
     post:
-      tags:
-        - Review
-      description: 리뷰 등록
-      operationId: addReview
-      parameters:
-        - name: restaurantId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.review.domain.dto.ReviewRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/review/receipt":
-    post:
-      tags:
-        - Receipt
-      description: 영수증 사진 업로드 및 인증
-      operationId: uploadAndOcr
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - file
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/restaurant/{restaurantId}/bookmark":
-    post:
-      tags:
-        - Bookmark
-      description: 음식점 즐겨찾기 등록
-      operationId: addRestaurantBookmark
-      parameters: []
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: integer
-                format: int64
-  "/restaurant/search/totalPath2":
-    post:
-      tags:
-        - Restaurant
-      description: 대중교통 경로 반환2
-      operationId: getTransitRoute2
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO"
-  "/restaurant/search/getWeight":
-    post:
-      tags:
-        - Restaurant
-      description: 가중치 정보 반환
-      operationId: getWeightInfo
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.RecommendedRestaurantsDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PersonalPathDTO"
-  "/restaurant/search/getWalkPath":
-    post:
-      tags:
-        - Restaurant
-      description: 도보 경로 반환
-      operationId: getWalkRoute
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.fasterxml.jackson.databind.JsonNode"
-  "/restaurant/search/getPath":
-    post:
-      tags:
-        - Restaurant
-      description: 대중교통 경로 반환
-      operationId: getTransitRoute
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.fasterxml.jackson.databind.JsonNode"
-  "/meet/register/{roomId}/{meetId}":
-    post:
-      tags:
-        - Meet
-      description: 약속 등록
-      operationId: createMeet
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: meetId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.meet.domain.dto.MeetRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.chat.domain.dto.MeetChatResponseDTO"
-  "/departure/register/{roomId}":
-    post:
-      tags:
-        - ChatRoom
-      description: 채팅방 내 출발지 등록
-      operationId: registerDeparture
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PersonalPathDTO"
-  "/chat/friend/add/{loginId}":
-    post:
-      tags:
-        - Friendship
-      description: 친구 추가
-      operationId: addFriend
-      parameters:
-        - name: loginId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/chat/friend/accept/{friendshipId}":
-    post:
-      tags:
-        - Friendship
-      description: 친구 추가 수락
-      operationId: acceptFriend
-      parameters:
-        - name: friendshipId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: object
-  "/update-image-routes":
-    patch:
-      tags:
-        - Food
-      description: 메인화면 이미지 경로 수정
-      operationId: updateImageRoutes
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/reviewDate":
-    patch:
-      tags:
-        - Review
-      description: 리뷰 등록 날짜 업데이트
-      operationId: updateDate
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/review/{reviewId}":
-    delete:
-      tags:
-        - Review
-      description: 리뷰 삭제
-      operationId: deleteReview
-      parameters:
-        - name: reviewId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-    patch:
-      tags:
-        - Review
-      description: 리뷰 수정
-      operationId: updateReview
-      parameters:
-        - name: reviewId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.review.domain.dto.ReviewRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.review.domain.dto.ReviewResponseDTO"
-  "/restaurant/api/initCoordinates":
-    patch:
-      tags:
-        - Restaurant
-      operationId: initCoordinates
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/rank/init":
-    patch:
-      tags:
-        - Rank
-      operationId: initData
-      responses:
-        '200':
-          description: OK
-  "/rank/initCountFood":
-    patch:
-      tags:
-        - Rank
-      operationId: initFoodCount
-      responses:
-        '200':
-          description: OK
-  "/rank/initCountFoodType":
-    patch:
-      tags:
-        - Rank
-      operationId: initCount
-      responses:
-        '200':
-          description: OK
-  "/member/update":
-    patch:
-      tags:
-        - Member
-      description: 회원정보 수정
-      operationId: updateMember
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.member.domain.dto.update.MemberUpdateRequestDTO"
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/{restaurantId}/review/{id}":
-    get:
-      tags:
-        - Review
-      description: 리뷰 상세 조회
-      operationId: findReviewDetail
-      parameters:
-        - name: restaurantId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.review.domain.dto.ReviewResponseDTO"
-  "/review/findByAddress/{address}":
-    get:
-      tags:
-        - Review
-      description: 주소로부터 리뷰 반환
-      operationId: findAllByAddress
-      parameters:
-        - name: address
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/review/findAll":
-    get:
-      tags:
-        - Review
-      description: 리뷰 전체 조회
-      operationId: findAll
-      parameters:
-        - name: address
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/{restaurantId}/review":
-    get:
-      tags:
-        - Restaurant
-      description: 음식점 상세 정보 조회(리뷰만 조회)
-      operationId: showDetailsOnlyReviews
-      parameters:
-        - name: restaurantId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/{restaurantId}/details":
-    get:
-      tags:
-        - Restaurant
-      description: 음식점 상세 정보 조회
-      operationId: showDetails
-      parameters:
-        - name: restaurantId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search":
-    get:
-      tags:
-        - Restaurant
-      description: 음식점 검색
-      operationId: search
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/showAddress":
-    get:
-      tags:
-        - Restaurant
-      description: 주소 테스트
-      operationId: addressTest
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/restaurant/search/routes":
-    get:
-      tags:
-        - Restaurant
-      description: 경로로 음식점 반환
-      operationId: getRestaurantsByRoutes
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: startX
-          in: query
-          required: true
-          schema:
-            type: number
-            format: float
-        - name: startY
-          in: query
-          required: true
-          schema:
-            type: number
-            format: float
-        - name: arg3
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/reviews":
-    get:
-      tags:
-        - Restaurant
-      description: 리뷰로부터 음식점 반환
-      operationId: getRestaurantsByTotalReviews
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/onlyrestaurants":
-    get:
-      tags:
-        - Restaurant
-      description: 음식점만 반환
-      operationId: findOnlyRestaurant
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/onlyrestaurants/reviews":
-    get:
-      tags:
-        - Restaurant
-      description: 리뷰로부터 음식점만 반환
-      operationId: findOnlyRestaurantForTotalReviews
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/onlyrestaurants/degree":
-    get:
-      tags:
-        - Restaurant
-      description: Degree로부터 음식점만 반환
-      operationId: findOnlyRestaurantForDegree
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/onlycafes":
-    get:
-      tags:
-        - Restaurant
-      description: 카페만 반환
-      operationId: findOnlyCafe
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/onlycafes/reviews":
-    get:
-      tags:
-        - Restaurant
-      description: 리뷰로부터 카페만 반환
-      operationId: findOnlyCafeForTotalReviews
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/onlycafes/degree":
-    get:
-      tags:
-        - Restaurant
-      description: Degree로부터 카페만 반환
-      operationId: findOnlyCafeForDegree
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/search/degree":
-    get:
-      tags:
-        - Restaurant
-      description: Degree로 음식점 반환
-      operationId: getRestaurantsByDegree
-      parameters:
-        - name: word
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/reverseGeo":
-    get:
-      tags:
-        - Restaurant
-      operationId: getAddressByCoordinates
-      parameters:
-        - name: arg0
-          in: query
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            type: number
-            format: double
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/restaurant/findAll":
-    get:
-      tags:
-        - Restaurant
-      description: 음식점 전체 조회
-      operationId: findAll_1
-      parameters:
-        - name: arg0
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-  "/restaurant/bookmark":
-    get:
-      tags:
-        - Bookmark
-      description: 음식점 즐겨찾기 전체 조회
-      operationId: findAllBookmarks
-      parameters:
-        - name: arg0
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.bookmark.domain.dto.BookmarkResponseDTO"
-  "/rank/update-weekly":
-    get:
-      tags:
-        - Rank
-      description: 주간 순위 업데이트
-      operationId: updateWeeklyRankings
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/rank/food":
-    get:
-      tags:
-        - Rank
-      description: 음식별 랭킹 반환
-      operationId: getFoodRank
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.rank.domain.dto.WeeklyFoodRankResponseDTO"
-  "/rank/foodType":
-    get:
-      tags:
-        - Rank
-      description: 음식 종류별 랭킹 반환
-      operationId: getTypeRank
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.rank.domain.dto.WeeklyFoodTypeRankResponseDTO"
-  "/rank/foodType/testScheduled":
-    get:
-      tags:
-        - Rank
-      operationId: testScheduled
-      responses:
-        '200':
-          description: OK
-  "/notices/{loginId}":
-    get:
-      tags:
-        - Notice
-      description: 사용자의 알림 목록 반환
-      operationId: getNoticesByType
-      parameters:
-        - name: loginId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/com.example.picktable.notice.domain.dto.NoticeResponseDTO"
-  "/mypage/update":
-    get:
-      tags:
-        - Member
-      description: 회원 정보 수정 반환(마이페이지)
-      operationId: update
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.member.domain.dto.update.MemberUpdateResponseDTO"
-  "/memberInfo":
-    get:
-      tags:
-        - Member
-      operationId: getMemberInfo
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.member.domain.dto.MemberResponseDTO"
-  "/memberId":
-    get:
-      tags:
-        - Member
-      operationId: getMemberId
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: integer
-                format: int64
-  "/main/image":
-    get:
-      tags:
-        - Food
-      description: 메인화면 이미지 경로 반환
-      operationId: getMainImage
-      parameters:
-        - name: arg0
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/image/{foodName}":
-    get:
-      tags:
-        - Food
-      description: 메뉴 이름에 해당하는 이미지 반환
-      operationId: getImageByFoodName
-      parameters: []
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-                format: binary
-  "/confirmNickname/{nickname}":
-    get:
       tags:
         - Member
       description: 닉네임 중복 확인
-      operationId: confirmNickname
+      operationId: checkNickname
       parameters:
         - name: nickname
-          in: path
+          in: query
           required: true
           schema:
             type: string
@@ -1108,170 +115,76 @@ paths:
         '200':
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
-                type: string
-  "/confirmLoginId/{loginId}":
-    get:
+                type: object
+  /member/check-loginId:
+    post:
       tags:
         - Member
       description: 아이디 중복 확인
-      operationId: confirmId
-      parameters:
-        - name: loginId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-  "/chat/rooms":
-    get:
-      tags:
-        - ChatRoom
-      description: 내가 속한 채팅방 전체 조회
-      operationId: getChatRoom
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: object
-  "/chat/friend/search":
-    get:
-      tags:
-        - Friendship
-      description: 친구 아이디 검색
-      operationId: searchFriend
+      operationId: checkLoginId
       parameters:
         - name: loginId
           in: query
           required: true
           schema:
             type: string
-        - name: arg1
-          in: query
-          required: true
-          schema:
-            "$ref": "#/components/schemas/org.springdoc.core.converters.models.Pageable"
       responses:
         '200':
           description: OK
           content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.friendship.domain.dto.FriendListResponseDTO"
-  "/chat/friend-list":
-    get:
-      tags:
-        - Friendship
-      description: 친구 목록 반환
-      operationId: getFriendInfo
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
+            '*/*':
               schema:
                 type: object
-  "/chat/friend-add-list":
-    get:
-      tags:
-        - Friendship
-      description: 친구 추가 목록 반환
-      operationId: getWaitingFriendInfo
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: object
-  "/restaurant/bookmark/{bookmarkId}":
-    delete:
-      tags:
-        - Bookmark
-      description: 음식점 즐겨찾기 해제
-      operationId: cancelRestaurantBookmark
-      parameters: []
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/member/delete":
+  /member/withdraw:
     delete:
       tags:
         - Member
-      description: 회원 탈퇴
-      operationId: deleteMember
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/com.example.picktable.member.controller.MemberController$UserDeleteDTO"
-        required: true
+      description: 회원탈퇴
+      operationId: withdraw
       responses:
         '200':
           description: OK
           content:
-            "*/*":
+            '*/*':
               schema:
-                "$ref": "#/components/schemas/com.example.picktable.global.domain.dto.MsgResponseDTO"
-  "/chat/friend/cancel/{friendshipId}":
-    delete:
-      tags:
-        - Friendship
-      description: 친구 추가 취소
-      operationId: cancelFriend
-      parameters:
-        - name: friendshipId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: object
+                $ref: >-
+                  #/components/schemas/com.example.eatpick.auth.domain.dto.response.MemberResponse
 components:
   schemas:
-    com.example.picktable.meet.domain.dto.MeetResponseDTO:
+    com.example.eatpick.auth.domain.dto.request.MyPageUpdateRequest:
       type: object
       properties:
-        meetId:
-          type: integer
-          format: int64
-        maxVotedMenu:
+        nickname:
           type: string
-    com.example.picktable.member.domain.dto.signup.SignupRequestDTO:
-      required:
-        - loginId
-        - loginPw
-        - nickname
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+        age:
+          type: integer
+          format: int32
+    com.example.eatpick.auth.domain.dto.response.MyPageUpdateResponse:
+      type: object
+      properties:
+        nickname:
+          type: string
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+        age:
+          type: integer
+          format: int32
+    com.example.eatpick.auth.domain.dto.request.MemberRequest:
       type: object
       properties:
         loginId:
-          maxLength: 10
-          minLength: 6
-          pattern: "^[a-z0-9]*$"
           type: string
         loginPw:
-          maxLength: 12
-          minLength: 8
-          pattern: "^[A-Za-z0-9]*$"
           type: string
         verifiedLoginPw:
           type: string
@@ -1279,204 +192,34 @@ components:
           type: string
         gender:
           type: string
+          enum:
+            - MALE
+            - FEMALE
         age:
           type: integer
           format: int32
-        roleType:
-          type: string
-          enum:
-            - USER
-            - ADMIN
-    com.example.picktable.global.domain.dto.MsgResponseDTO:
-      type: object
-      properties:
-        msg:
-          type: string
-        statusCode:
-          type: integer
-          format: int32
-    com.example.picktable.member.domain.dto.login.LoginRequestDTO:
-      required:
-        - loginId
-        - loginPw
-      type: object
-      properties:
-        loginId:
-          type: string
-        loginPw:
-          type: string
-    com.example.picktable.member.domain.dto.JwtTokenDTO:
-      type: object
-      properties:
-        grantType:
-          type: string
-        accessToken:
-          type: string
-        refreshToken:
-          type: string
-        sessionId:
-          type: string
-    com.example.picktable.chatRoom.domain.dto.RoomAndFriendsRequestDTO:
-      type: object
-      properties:
-        roomId:
-          type: integer
-          format: int64
-        name:
-          type: string
-        friendLoginIds:
+        preferences:
           type: array
           items:
             type: string
-    com.example.picktable.bookmark.domain.entity.Bookmark:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        member:
-          "$ref": "#/components/schemas/com.example.picktable.member.domain.entity.Member"
-        restaurant:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.entity.Restaurant"
-    com.example.picktable.chat.domain.entity.Chat:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        sender:
-          type: string
-        sendDate:
-          type: string
-          format: date-time
-        vote:
-          "$ref": "#/components/schemas/com.example.picktable.vote.domain.entity.Vote"
-        meet:
-          "$ref": "#/components/schemas/com.example.picktable.meet.domain.entity.Meet"
-        notice:
-          "$ref": "#/components/schemas/com.example.picktable.notice.domain.entity.Notice"
-    com.example.picktable.chatRoom.domain.entity.ChatRoom:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        hostId:
-          type: string
-        roomName:
-          type: string
-        currentUserNum:
-          type: integer
-          format: int32
-        vote:
-          "$ref": "#/components/schemas/com.example.picktable.vote.domain.entity.Vote"
-    com.example.picktable.chatRoomMember.domain.entity.ChatRoomMember:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        room:
-          "$ref": "#/components/schemas/com.example.picktable.chatRoom.domain.entity.ChatRoom"
-        member:
-          "$ref": "#/components/schemas/com.example.picktable.member.domain.entity.Member"
-    com.example.picktable.food.domain.dto.FoodResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        foodName:
-          type: string
-        count:
-          type: integer
-          format: int64
-        ranks:
-          type: integer
-          format: int64
-    com.example.picktable.food.domain.entity.Food:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        foodName:
-          type: string
-        foodType:
-          "$ref": "#/components/schemas/com.example.picktable.foodType.domain.entity.FoodType"
-        imageRoute:
-          type: string
-        count:
-          type: integer
-          format: int64
-        meet:
-          "$ref": "#/components/schemas/com.example.picktable.meet.domain.entity.Meet"
-        weeklyFoodRank:
-          "$ref": "#/components/schemas/com.example.picktable.rank.domain.entity.WeeklyFoodRank"
-    com.example.picktable.foodType.domain.entity.FoodType:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        foodTypeName:
-          type: string
-        count:
-          type: integer
-          format: int64
-        restaurants:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.entity.Restaurant"
-    com.example.picktable.friendship.domain.entity.Friendship:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        memberLoginId:
-          type: string
-        friendLoginId:
-          type: string
-        status:
-          type: string
-          enum:
-            - ACCEPT
-            - WAITING
-        counterpartId:
-          type: integer
-          format: int64
-        member:
-          "$ref": "#/components/schemas/com.example.picktable.member.domain.entity.Member"
-        from:
-          type: boolean
-    com.example.picktable.likes.domain.entity.Likes:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        state:
-          type: boolean
-        review:
-          "$ref": "#/components/schemas/com.example.picktable.review.domain.entity.Review"
-        member:
-          "$ref": "#/components/schemas/com.example.picktable.member.domain.entity.Member"
-    com.example.picktable.meet.domain.entity.Meet:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        meetLocate:
-          type: string
-        meetMenu:
-          type: string
-        meetTime:
-          type: string
-        food:
-          "$ref": "#/components/schemas/com.example.picktable.food.domain.entity.Food"
-    com.example.picktable.member.domain.entity.Member:
+            enum:
+              - SPICY
+              - SWEET
+              - SALTY
+              - SOUR
+              - SAVORY
+              - MILD
+              - PLAIN
+              - VEGAN
+              - VEGETARIAN
+              - SEAFOOD
+              - MEAT_LOVER
+              - DAIRY_FREE
+              - GLUTEN_FREE
+              - LOW_CARB
+              - ORGANIC
+              - TRADITIONAL
+    com.example.eatpick.auth.domain.dto.response.MemberResponse:
       type: object
       properties:
         id:
@@ -1492,921 +235,57 @@ components:
           type: string
         gender:
           type: string
-        age:
-          type: integer
-          format: int32
+          enum:
+            - MALE
+            - FEMALE
         role:
           type: string
           enum:
             - USER
             - ADMIN
-        friendshipList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.friendship.domain.entity.Friendship"
-        chatRoomMembers:
-          uniqueItems: true
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.chatRoomMember.domain.entity.ChatRoomMember"
-        bookmarkList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.bookmark.domain.entity.Bookmark"
-        reviewList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.review.domain.entity.Review"
-        likesList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.likes.domain.entity.Likes"
-    com.example.picktable.notice.domain.entity.Notice:
-      type: object
-      properties:
-        createdDate:
-          type: string
-        modifiedDate:
-          type: string
-        id:
-          type: integer
-          format: int64
-        content:
-          type: string
-        noticeType:
-          type: string
-          enum:
-            - LIKES
-            - CHAT_INVITE
-            - FRIEND_INVITE
-        chat:
-          "$ref": "#/components/schemas/com.example.picktable.chat.domain.entity.Chat"
-        member:
-          "$ref": "#/components/schemas/com.example.picktable.member.domain.entity.Member"
-    com.example.picktable.rank.domain.entity.WeeklyFoodRank:
-      type: object
-      properties:
-        createdDate:
-          type: string
-        modifiedDate:
-          type: string
-        id:
-          type: integer
-          format: int64
-        date:
-          type: string
-        foods:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.food.domain.dto.FoodResponseDTO"
-    com.example.picktable.restaurant.domain.entity.Restaurant:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-        restaurantType:
-          type: string
-        degree:
-          type: number
-          format: double
-        addressRoad:
-          type: string
-        addressNumber:
-          type: string
-        tel:
-          type: string
-        menus:
-          type: string
-        totalReviews:
-          type: integer
-          format: int32
-        totalTaste:
-          type: integer
-          format: int32
-        totalCost:
-          type: integer
-          format: int32
-        totalKind:
-          type: integer
-          format: int32
-        totalMood:
-          type: integer
-          format: int32
-        totalPark:
-          type: integer
-          format: int32
-        latitude:
-          type: number
-          format: double
-        longitude:
-          type: number
-          format: double
-        pathTime:
-          type: integer
-          format: int32
-        distance:
-          type: number
-          format: double
-        count:
-          type: integer
-          format: int64
-        bookmark:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.bookmark.domain.entity.Bookmark"
-        reviewList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.review.domain.entity.Review"
-        foodType:
-          "$ref": "#/components/schemas/com.example.picktable.foodType.domain.entity.FoodType"
-    com.example.picktable.review.domain.entity.Review:
-      type: object
-      properties:
-        createdDate:
-          type: string
-        modifiedDate:
-          type: string
-        id:
-          type: integer
-          format: int64
-        totalLikes:
-          type: integer
-          format: int64
-        taste:
-          type: integer
-          format: int32
-        cost:
-          type: integer
-          format: int32
-        kind:
-          type: integer
-          format: int32
-        mood:
-          type: integer
-          format: int32
-        park:
-          type: integer
-          format: int32
-        reviewType:
-          type: string
-          enum:
-            - CERTIFY
-            - NOT_CERTIFY
-        stars:
-          type: number
-          format: double
-        writer:
-          type: string
-        member:
-          "$ref": "#/components/schemas/com.example.picktable.member.domain.entity.Member"
-        restaurant:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.entity.Restaurant"
-        likesList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.likes.domain.entity.Likes"
-    com.example.picktable.vote.domain.entity.Vote:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        menu1:
-          type: string
-        menu2:
-          type: string
-        voteCount1:
-          type: integer
-          format: int64
-        voteCount2:
-          type: integer
-          format: int64
-        chat:
-          "$ref": "#/components/schemas/com.example.picktable.chat.domain.entity.Chat"
-        room:
-          "$ref": "#/components/schemas/com.example.picktable.chatRoom.domain.entity.ChatRoom"
-    com.example.picktable.review.domain.dto.ReviewRequestDTO:
-      type: object
-      properties:
-        restaurant_id:
-          type: integer
-          format: int64
-        totalLikes:
-          type: integer
-          format: int64
-        taste:
-          type: integer
-          format: int32
-        mood:
-          type: integer
-          format: int32
-        park:
-          type: integer
-          format: int32
-        kind:
-          type: integer
-          format: int32
-        cost:
-          type: integer
-          format: int32
-        reviewType:
-          type: string
-          enum:
-            - CERTIFY
-            - NOT_CERTIFY
-        stars:
-          type: number
-          format: double
-    com.example.picktable.restaurant.domain.dto.PathRequestDTO:
-      type: object
-      properties:
-        departure:
-          type: string
-        destination:
-          type: string
-        destinations:
-          type: array
-          items:
-            type: string
-        searchDttm:
-          type: string
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO:
-      type: object
-      properties:
-        metaData:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$MetaData"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Currency:
-      type: object
-      properties:
-        symbol:
-          type: string
-        currency:
-          type: string
-        currencyCode:
-          type: string
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$End:
-      type: object
-      properties:
-        name:
-          type: string
-        lon:
-          type: number
-          format: double
-        lat:
-          type: number
-          format: double
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Fare:
-      type: object
-      properties:
-        regular:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Regular"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Itinerary:
-      type: object
-      properties:
-        fare:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Fare"
-        totalTime:
-          type: integer
-          format: int32
-        legs:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Leg"
-        totalWalkTime:
-          type: integer
-          format: int32
-        transferCount:
-          type: integer
-          format: int32
-        totalDistance:
-          type: integer
-          format: int32
-        pathType:
-          type: integer
-          format: int32
-        totalWalkDistance:
-          type: integer
-          format: int32
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Lane:
-      type: object
-      properties:
-        routeColor:
-          type: string
-        route:
-          type: string
-        routeId:
-          type: string
-        service:
-          type: integer
-          format: int32
-        type:
-          type: integer
-          format: int32
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Leg:
-      type: object
-      properties:
-        mode:
-          type: string
-        sectionTime:
-          type: integer
-          format: int32
-        distance:
-          type: integer
-          format: int32
-        start:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Start"
-        end:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$End"
-        steps:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Step"
-        routeColor:
-          type: string
-        type:
-          type: integer
-          format: int32
-        route:
-          type: string
-        routeId:
-          type: string
-        service:
-          type: integer
-          format: int32
-        passStopList:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$PassStopList"
-        passShape:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$PassShape"
-        Lane:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Lane"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$MetaData:
-      type: object
-      properties:
-        requestParameters:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$RequestParameters"
-        plan:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Plan"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$PassShape:
-      type: object
-      properties:
-        linestring:
-          type: string
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$PassStopList:
-      type: object
-      properties:
-        stationList:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Station"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Plan:
-      type: object
-      properties:
-        itineraries:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Itinerary"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Regular:
-      type: object
-      properties:
-        totalFare:
-          type: integer
-          format: int32
-        currency:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.PathResponseDTO$Currency"
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$RequestParameters:
-      type: object
-      properties:
-        busCount:
-          type: integer
-          format: int32
-        expressbusCount:
-          type: integer
-          format: int32
-        subwayCount:
-          type: integer
-          format: int32
-        airplaneCount:
-          type: integer
-          format: int32
-        locale:
-          type: string
-        endY:
-          type: string
-        endX:
-          type: string
-        wideareaRouteCount:
-          type: integer
-          format: int32
-        subwayBusCount:
-          type: integer
-          format: int32
-        startY:
-          type: string
-        startX:
-          type: string
-        ferryCount:
-          type: integer
-          format: int32
-        trainCount:
-          type: integer
-          format: int32
-        reqDttm:
-          type: string
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Start:
-      type: object
-      properties:
-        name:
-          type: string
-        lon:
-          type: number
-          format: double
-        lat:
-          type: number
-          format: double
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Station:
-      type: object
-      properties:
-        index:
-          type: integer
-          format: int32
-        stationName:
-          type: string
-        lon:
-          type: string
-        lat:
-          type: string
-        stationID:
-          type: string
-    com.example.picktable.restaurant.domain.dto.PathResponseDTO$Step:
-      type: object
-      properties:
-        streetName:
-          type: string
-        distance:
-          type: integer
-          format: int32
-        description:
-          type: string
-        linestring:
-          type: string
-    com.example.picktable.restaurant.domain.dto.RecommendedRestaurantsDTO:
-      type: object
-      properties:
-        keyword:
-          type: string
-        startAddress:
-          type: array
-          items:
-            type: string
-        searchDttm:
-          type: string
-    PageableObject:
-      type: object
-      properties:
-        offset:
-          type: integer
-          format: int64
-        sort:
-          "$ref": "#/components/schemas/SortObject"
-        unpaged:
-          type: boolean
-        paged:
-          type: boolean
-        pageNumber:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-    SortObject:
-      type: object
-      properties:
-        empty:
-          type: boolean
-        unsorted:
-          type: boolean
-        sorted:
-          type: boolean
-    com.example.picktable.restaurant.domain.dto.PersonalPathDTO:
-      type: object
-      properties:
-        restaurantResponseDTO:
-          "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-        totalTime:
-          type: integer
-          format: int32
-        serialNum:
-          type: integer
-          format: int32
-        weight:
-          type: integer
-          format: int32
-        routeInfo:
-          "$ref": "#/components/schemas/com.fasterxml.jackson.databind.JsonNode"
-    com.example.picktable.restaurant.domain.dto.RestaurantResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-        restaurantType:
-          type: string
-        degree:
-          type: number
-          format: double
-        addressRoad:
-          type: string
-        addressNumber:
-          type: string
-        tel:
-          type: string
-        menus:
-          type: string
-        totalReviews:
-          type: integer
-          format: int32
-        totalTaste:
-          type: integer
-          format: int32
-        totalCost:
-          type: integer
-          format: int32
-        totalKind:
-          type: integer
-          format: int32
-        totalMood:
-          type: integer
-          format: int32
-        totalPark:
-          type: integer
-          format: int32
-        latitude:
-          type: number
-          format: double
-        longitude:
-          type: number
-          format: double
-        distance:
-          type: number
-          format: double
-        pathTime:
-          type: integer
-          format: int32
-        reviewList:
-          "$ref": "#/components/schemas/org.springframework.data.domain.PageCom.example.picktable.review.domain.dto.ReviewResponseDTO"
-        count:
-          type: integer
-          format: int32
-        rank:
-          type: integer
-          format: int32
-        foodType:
-          "$ref": "#/components/schemas/com.example.picktable.foodType.domain.entity.FoodType"
-    com.example.picktable.review.domain.dto.ReviewResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        totalLikes:
-          type: integer
-          format: int64
-        writers:
-          type: string
-        taste:
-          type: integer
-          format: int32
-        cost:
-          type: integer
-          format: int32
-        kind:
-          type: integer
-          format: int32
-        mood:
-          type: integer
-          format: int32
-        park:
-          type: integer
-          format: int32
-        createdDate:
-          type: string
-        reviewType:
-          type: string
-          enum:
-            - CERTIFY
-            - NOT_CERTIFY
-        stars:
-          type: number
-          format: double
-        member_id:
-          type: integer
-          format: int64
-    com.fasterxml.jackson.databind.JsonNode:
-      type: object
-    org.springframework.data.domain.PageCom.example.picktable.review.domain.dto.ReviewResponseDTO:
-      type: object
-      properties:
-        totalElements:
-          type: integer
-          format: int64
-        totalPages:
-          type: integer
-          format: int32
-        first:
-          type: boolean
-        last:
-          type: boolean
-        size:
-          type: integer
-          format: int32
-        content:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.review.domain.dto.ReviewResponseDTO"
-        number:
-          type: integer
-          format: int32
-        sort:
-          "$ref": "#/components/schemas/SortObject"
-        numberOfElements:
-          type: integer
-          format: int32
-        pageable:
-          "$ref": "#/components/schemas/PageableObject"
-        empty:
-          type: boolean
-    com.example.picktable.meet.domain.dto.MeetRequestDTO:
-      type: object
-      properties:
-        meetLocate:
-          type: string
-        meetTime:
-          type: string
-    com.example.picktable.chat.domain.dto.MeetChatResponseDTO:
-      type: object
-      properties:
-        roomId:
-          type: integer
-          format: int64
-        meetId:
-          type: integer
-          format: int64
-        meetLocate:
-          type: string
-        meetMenu:
-          type: string
-        meetTime:
-          type: string
-    com.example.picktable.member.domain.dto.update.MemberUpdateRequestDTO:
-      type: object
-      properties:
-        nickname:
-          type: string
-        gender:
-          type: string
         age:
           type: integer
           format: int32
-    org.springdoc.core.converters.models.Pageable:
-      type: object
-      properties:
-        page:
-          minimum: 0
-          type: integer
-          format: int32
-        size:
-          minimum: 1
-          type: integer
-          format: int32
-        sort:
+        preferences:
           type: array
           items:
             type: string
-    org.springframework.data.domain.PageCom.example.picktable.restaurant.domain.dto.RestaurantResponseDTO:
+            enum:
+              - SPICY
+              - SWEET
+              - SALTY
+              - SOUR
+              - SAVORY
+              - MILD
+              - PLAIN
+              - VEGAN
+              - VEGETARIAN
+              - SEAFOOD
+              - MEAT_LOVER
+              - DAIRY_FREE
+              - GLUTEN_FREE
+              - LOW_CARB
+              - ORGANIC
+              - TRADITIONAL
+    com.example.eatpick.auth.domain.dto.request.SignInRequest:
       type: object
       properties:
-        totalElements:
-          type: integer
-          format: int64
-        totalPages:
-          type: integer
-          format: int32
-        first:
-          type: boolean
-        last:
-          type: boolean
-        size:
-          type: integer
-          format: int32
-        content:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.restaurant.domain.dto.RestaurantResponseDTO"
-        number:
-          type: integer
-          format: int32
-        sort:
-          "$ref": "#/components/schemas/SortObject"
-        numberOfElements:
-          type: integer
-          format: int32
-        pageable:
-          "$ref": "#/components/schemas/PageableObject"
-        empty:
-          type: boolean
-    com.example.picktable.bookmark.domain.dto.BookmarkResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        restaurantId:
-          type: integer
-          format: int64
-        restaurantTel:
-          type: string
-        restaurantName:
-          type: string
-        addressRoad:
-          type: string
-        degrees:
-          type: number
-          format: double
-        reviews:
-          type: integer
-          format: int32
-        member_id:
-          type: integer
-          format: int64
-    org.springframework.data.domain.PageCom.example.picktable.bookmark.domain.dto.BookmarkResponseDTO:
-      type: object
-      properties:
-        totalElements:
-          type: integer
-          format: int64
-        totalPages:
-          type: integer
-          format: int32
-        first:
-          type: boolean
-        last:
-          type: boolean
-        size:
-          type: integer
-          format: int32
-        content:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.bookmark.domain.dto.BookmarkResponseDTO"
-        number:
-          type: integer
-          format: int32
-        sort:
-          "$ref": "#/components/schemas/SortObject"
-        numberOfElements:
-          type: integer
-          format: int32
-        pageable:
-          "$ref": "#/components/schemas/PageableObject"
-        empty:
-          type: boolean
-    com.example.picktable.rank.domain.dto.WeeklyFoodRankResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        date:
-          type: string
-        topFoods:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.food.domain.dto.FoodResponseDTO"
-    com.example.picktable.foodType.domain.dto.FoodTypeResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        foodTypeName:
-          type: string
-        count:
-          type: integer
-          format: int64
-        ranks:
-          type: integer
-          format: int64
-    com.example.picktable.rank.domain.dto.WeeklyFoodTypeRankResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        date:
-          type: string
-        topFoodTypes:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.foodType.domain.dto.FoodTypeResponseDTO"
-    com.example.picktable.notice.domain.dto.NoticeResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        memberId:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-        content:
-          type: string
-        noticeType:
-          type: string
-          enum:
-            - LIKES
-            - CHAT_INVITE
-            - FRIEND_INVITE
-    com.example.picktable.member.domain.dto.update.MemberUpdateResponseDTO:
-      type: object
-      properties:
-        nickname:
-          type: string
-        gender:
-          type: string
-        age:
-          type: integer
-          format: int32
-    com.example.picktable.member.domain.dto.MemberResponseDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
         loginId:
           type: string
         loginPw:
           type: string
-        nickname:
-          type: string
-        gender:
-          type: string
-        age:
-          type: integer
-          format: int32
-    com.example.picktable.friendship.domain.dto.FriendListResponseDTO:
+    com.example.eatpick.auth.domain.dto.response.SignInResponse:
       type: object
       properties:
         loginId:
           type: string
-        nickname:
+        loginPw:
           type: string
-    org.springframework.data.domain.PageCom.example.picktable.friendship.domain.dto.FriendListResponseDTO:
-      type: object
-      properties:
-        totalElements:
-          type: integer
-          format: int64
-        totalPages:
-          type: integer
-          format: int32
-        first:
-          type: boolean
-        last:
-          type: boolean
-        size:
-          type: integer
-          format: int32
-        content:
-          type: array
-          items:
-            "$ref": "#/components/schemas/com.example.picktable.friendship.domain.dto.FriendListResponseDTO"
-        number:
-          type: integer
-          format: int32
-        sort:
-          "$ref": "#/components/schemas/SortObject"
-        numberOfElements:
-          type: integer
-          format: int32
-        pageable:
-          "$ref": "#/components/schemas/PageableObject"
-        empty:
-          type: boolean
-    com.example.picktable.member.controller.MemberController$UserDeleteDTO:
-      required:
-        - checkPassword
-      type: object
-      properties:
-        checkPassword:
+        grantType:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
           type: string
   securitySchemes:
     jwtAuth:
